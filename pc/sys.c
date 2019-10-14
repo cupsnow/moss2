@@ -12,16 +12,24 @@ const char *moss_newline = "\n";
 static char _log_buf[256];
 static moss_buf_t log_buf = {.data = _log_buf, .cap = sizeof(_log_buf)};
 
+int moss_vlog(unsigned lvl, const char *tag, long lno,
+		const char *fmt, va_list va) {
+	int r;
+
+	log_buf.pos = log_buf.lmt = 0;
+	r = moss_vlogf(&log_buf, lvl, tag, lno, fmt, va);
+	printf("%s", (char*)log_buf.data);
+	return r;
+}
+
 int moss_log(unsigned lvl, const char *tag, long lno,
 		const char *fmt, ...) {
 	va_list va;
 	int r;
 
 	va_start(va, fmt);
-	log_buf.pos = log_buf.lmt = 0;
-	r = moss_vlogf(&log_buf, lvl, tag, lno, fmt, va);
+	r = moss_vlog(lvl, tag, lno, fmt, va);
 	va_end(va);
-	printf("%s", (char*)log_buf.data);
 	return r;
 }
 
